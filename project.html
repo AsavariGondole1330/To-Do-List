@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding-bottom: 60px; /* Space for footer */
+      background-color: plum;
+    }
+
+    .signin-container {
+      background-color: rgb(139, 231, 216);
+      color: white;
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .signin-container input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .signin-container button {
+      width: 95%;
+      padding: 10px;
+      background: #fff;
+      color: #4a90e2;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .todo-container {
+      display: none;
+      max-width: 600px;
+      margin: 50px auto;
+      background: #d0e7ff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .right-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .timer {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    #searchInput {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 180px;
+    }
+
+    .logout-button {
+      padding: 8px 16px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #newTask {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .todo-container ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .todo-container li {
+      background: #e9ecef;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-actions button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .edit-btn {
+      background-color: #ffc107;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    /* Footer Styles */
+    .footer {
+      background-color: #333;
+      padding: 10px 20px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .footer-content img {
+      height: 40px;
+    }
+
+    p {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+<div class="signin-container" id="signin">
+  <h2>Sign In</h2>
+  <input type="text" id="emailOrPhone" placeholder="Email or Phone Number" />
+  <button onclick="signIn()">Sign In</button>
+</div>
+
+<div class="todo-container" id="todo">
+  <div class="header-bar">
+    <h2>To Do List</h2>
+    <div class="right-controls">
+      <div class="timer" id="currentTime"></div>
+      <div class="actions">
+        <input type="text" id="searchInput" placeholder="Search task" oninput="searchTasks()" />
+        <button class="logout-button" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="text" id="newTask" placeholder="Add a new task" />
+  <button onclick="addTask()">Add</button>
+  <ul id="taskList"></ul>
+</div>
+
+<script>
+  function signIn() {
+    const user = document.getElementById('emailOrPhone').value;
+    if (user.trim() !== "") {
+      document.getElementById('signin').style.display = "none";
+      document.getElementById('todo').style.display = "block";
+      showTime();
+    } else {
+      alert("Please enter a valid email or phone number.");
+    }
+  }
+
+  function addTask() {
+    const taskText = document.getElementById('newTask').value;
+    if (taskText.trim() !== "") {
+      const li = document.createElement('li');
+      const taskSpan = document.createElement('span');
+      taskSpan.textContent = taskText;
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.classList.add('task-actions');
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = "Edit";
+      editBtn.classList.add('edit-btn');
+      editBtn.onclick = function () {
+        const newTask = prompt("Edit task:", taskSpan.textContent);
+        if (newTask !== null && newTask.trim() !== "") {
+          taskSpan.textContent = newTask;
+        }
+      };
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = "Delete";
+      deleteBtn.classList.add('delete-btn');
+      deleteBtn.onclick = function () {
+        li.remove();
+      };
+
+      actionsDiv.appendChild(editBtn);
+      actionsDiv.appendChild(deleteBtn);
+      li.appendChild(taskSpan);
+      li.appendChild(actionsDiv);
+      document.getElementById('taskList').appendChild(li);
+      document.getElementById('newTask').value = '';
+    }
+  }
+
+  function logout() {
+    document.getElementById('todo').style.display = "none";
+    document.getElementById('signin').style.display = "block";
+    document.getElementById('emailOrPhone').value = '';
+    document.getElementById('taskList').innerHTML = '';
+  }
+
+  function showTime() {
+    const timeElem = document.getElementById("currentTime");
+    setInterval(() => {
+      const now = new Date();
+      timeElem.textContent = now.toLocaleTimeString();
+    }, 1000);
+  }
+
+  function searchTasks() {
+    const searchText = document.getElementById('searchInput').value.toLowerCase();
+    const tasks = document.querySelectorAll('#taskList li');
+
+    tasks.forEach(task => {
+      const taskText = task.querySelector('span').textContent.toLowerCase();
+      task.style.display = taskText.includes(searchText) ? "flex" : "none";
+    });
+  }
+</script>
+
+<img 
+  src="https://cdn-icons-png.freepik.com/256/4697/4697260.png?semt=ais_hybrid" 
+  alt="To Do List Icon" 
+  style="position: fixed; bottom: 10px; right: 10px; width: 60px; z-index: 1000;" />
+</body>
+</html>
